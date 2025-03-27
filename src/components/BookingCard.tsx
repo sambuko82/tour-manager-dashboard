@@ -13,12 +13,12 @@ interface BookingCardProps {
 const BookingCard = ({ booking, onClick }: BookingCardProps) => {
   if (!booking || !booking.financial) return null;
   
-  const startDate = parseISO(booking.startDate);
-  const endDate = parseISO(booking.endDate);
-  const depositPaid = booking.financial?.depositPaid || 0;
-  const costTotal = booking.financial?.costTotal || 0;
-  const depositPercentage = (depositPaid / costTotal) * 100;
-  const paymentStatus = booking.financial?.paymentStatus;
+  const startDate = parseISO(booking.start_date);
+  const endDate = parseISO(booking.end_date);
+  const depositAmount = booking.financial?.deposit_amount || 0;
+  const costTotal = booking.financial?.cost_total || 0;
+  const depositPercentage = (depositAmount / costTotal) * 100;
+  const paymentStatus = booking.financial?.payment_status;
   
   const today = new Date();
   const isUpcoming = isBefore(today, startDate) && 
@@ -39,7 +39,7 @@ const BookingCard = ({ booking, onClick }: BookingCardProps) => {
     >
       <div className="flex justify-between items-start mb-3">
         <div>
-          <h3 className="font-semibold text-lg tracking-tight">{booking.tourPackage}</h3>
+          <h3 className="font-semibold text-lg tracking-tight">{booking.tour_package}</h3>
           <p className="text-sm text-muted-foreground">{booking.customer?.name} • {booking.customer?.country}</p>
         </div>
         <StatusBadge status={paymentStatus} />
@@ -54,7 +54,7 @@ const BookingCard = ({ booking, onClick }: BookingCardProps) => {
       
       <div className="flex items-center text-sm mb-3 text-muted-foreground">
         <Users className="h-4 w-4 mr-1.5" />
-        <span>{booking.numberOfParticipants} participant{booking.numberOfParticipants !== 1 ? 's' : ''}</span>
+        <span>{booking.number_of_participants} participant{booking.number_of_participants !== 1 ? 's' : ''}</span>
       </div>
       
       <div className="flex items-center text-sm mb-4 font-medium">
@@ -77,8 +77,8 @@ const BookingCard = ({ booking, onClick }: BookingCardProps) => {
       
       <div className="flex justify-between items-center text-xs">
         <div className="flex space-x-2">
-          <StatusBadge status={booking.accommodationStatus} size="sm" />
-          <StatusBadge status={booking.resourceStatus} size="sm" />
+          <StatusBadge status={booking.accommodation_status} size="sm" />
+          <StatusBadge status={booking.resource_status} size="sm" />
         </div>
         <div className="text-primary text-xs font-medium flex items-center">
           View details

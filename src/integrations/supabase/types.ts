@@ -9,6 +9,205 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      accommodations: {
+        Row: {
+          booking_id: number | null
+          check_in_date: string
+          check_out_date: string
+          created_at: string | null
+          day: number
+          hotel: string
+          id: number
+          notes: string | null
+          room_type: string | null
+        }
+        Insert: {
+          booking_id?: number | null
+          check_in_date: string
+          check_out_date: string
+          created_at?: string | null
+          day: number
+          hotel: string
+          id?: number
+          notes?: string | null
+          room_type?: string | null
+        }
+        Update: {
+          booking_id?: number | null
+          check_in_date?: string
+          check_out_date?: string
+          created_at?: string | null
+          day?: number
+          hotel?: string
+          id?: number
+          notes?: string | null
+          room_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accommodations_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bookings: {
+        Row: {
+          accommodation_status: string | null
+          created_at: string | null
+          customer_id: number
+          dropoff_info: string | null
+          end_date: string
+          id: number
+          number_of_participants: number
+          pickup_info: string | null
+          resource_status: string | null
+          start_date: string
+          t_shirt_size: string | null
+          tour_package: string
+        }
+        Insert: {
+          accommodation_status?: string | null
+          created_at?: string | null
+          customer_id: number
+          dropoff_info?: string | null
+          end_date: string
+          id?: number
+          number_of_participants: number
+          pickup_info?: string | null
+          resource_status?: string | null
+          start_date: string
+          t_shirt_size?: string | null
+          tour_package: string
+        }
+        Update: {
+          accommodation_status?: string | null
+          created_at?: string | null
+          customer_id?: number
+          dropoff_info?: string | null
+          end_date?: string
+          id?: number
+          number_of_participants?: number
+          pickup_info?: string | null
+          resource_status?: string | null
+          start_date?: string
+          t_shirt_size?: string | null
+          tour_package?: string
+        }
+        Relationships: []
+      }
+      customers: {
+        Row: {
+          contact: string | null
+          country: string | null
+          created_at: string | null
+          email: string | null
+          id: number
+          name: string
+        }
+        Insert: {
+          contact?: string | null
+          country?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: number
+          name: string
+        }
+        Update: {
+          contact?: string | null
+          country?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: number
+          name?: string
+        }
+        Relationships: []
+      }
+      financials: {
+        Row: {
+          balance_due: number | null
+          balance_invoice_number: string | null
+          balance_invoice_url: string | null
+          balance_payment_method: string | null
+          booking_id: number | null
+          cost_total: number
+          created_at: string | null
+          days_to_tour: number | null
+          deposit_amount: number | null
+          deposit_invoice_number: string | null
+          deposit_payment_date: string | null
+          deposit_payment_method: string | null
+          deposit_receipt_url: string | null
+          expenses: number | null
+          expenses_details_url: string | null
+          final_payment_deadline: string | null
+          id: number
+          invoice_number: string | null
+          last_minute_booking: boolean | null
+          net_profit: number | null
+          payment_method: string | null
+          payment_status: string | null
+        }
+        Insert: {
+          balance_due?: number | null
+          balance_invoice_number?: string | null
+          balance_invoice_url?: string | null
+          balance_payment_method?: string | null
+          booking_id?: number | null
+          cost_total: number
+          created_at?: string | null
+          days_to_tour?: number | null
+          deposit_amount?: number | null
+          deposit_invoice_number?: string | null
+          deposit_payment_date?: string | null
+          deposit_payment_method?: string | null
+          deposit_receipt_url?: string | null
+          expenses?: number | null
+          expenses_details_url?: string | null
+          final_payment_deadline?: string | null
+          id?: number
+          invoice_number?: string | null
+          last_minute_booking?: boolean | null
+          net_profit?: number | null
+          payment_method?: string | null
+          payment_status?: string | null
+        }
+        Update: {
+          balance_due?: number | null
+          balance_invoice_number?: string | null
+          balance_invoice_url?: string | null
+          balance_payment_method?: string | null
+          booking_id?: number | null
+          cost_total?: number
+          created_at?: string | null
+          days_to_tour?: number | null
+          deposit_amount?: number | null
+          deposit_invoice_number?: string | null
+          deposit_payment_date?: string | null
+          deposit_payment_method?: string | null
+          deposit_receipt_url?: string | null
+          expenses?: number | null
+          expenses_details_url?: string | null
+          final_payment_deadline?: string | null
+          id?: number
+          invoice_number?: string | null
+          last_minute_booking?: boolean | null
+          net_profit?: number | null
+          payment_method?: string | null
+          payment_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financials_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       participants: {
         Row: {
           created_at: string
@@ -44,6 +243,53 @@ export type Database = {
           tshirt_size?: string | null
         }
         Relationships: []
+      }
+      resources: {
+        Row: {
+          assigned_date: string
+          booking_id: number | null
+          created_at: string | null
+          driver_id: number | null
+          driver_name: string | null
+          guide_id: number | null
+          guide_name: string | null
+          id: number
+          vehicle_id: number | null
+          vehicle_info: string | null
+        }
+        Insert: {
+          assigned_date: string
+          booking_id?: number | null
+          created_at?: string | null
+          driver_id?: number | null
+          driver_name?: string | null
+          guide_id?: number | null
+          guide_name?: string | null
+          id?: number
+          vehicle_id?: number | null
+          vehicle_info?: string | null
+        }
+        Update: {
+          assigned_date?: string
+          booking_id?: number | null
+          created_at?: string | null
+          driver_id?: number | null
+          driver_name?: string | null
+          guide_id?: number | null
+          guide_name?: string | null
+          id?: number
+          vehicle_id?: number | null
+          vehicle_info?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resources_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       room_arrangements: {
         Row: {

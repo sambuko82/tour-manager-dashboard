@@ -14,64 +14,64 @@ export interface Customer {
 
 export interface Booking {
   id: number
-  customerID: number
-  tourPackage: string
-  startDate: string
-  endDate: string
-  numberOfParticipants: number
-  pickupInfo: string
-  dropoffInfo: string
-  tShirtSize: string
-  accommodationStatus: AccommodationStatus
-  resourceStatus: ResourceStatus
+  customer_id: number
+  tour_package: string
+  start_date: string
+  end_date: string
+  number_of_participants: number
+  pickup_info: string
+  dropoff_info: string
+  t_shirt_size: string
+  accommodation_status: AccommodationStatus
+  resource_status: ResourceStatus
   customer?: Customer
 }
 
 export interface Accommodation {
   id: number
-  bookingID: number
+  booking_id: number
   day: number
   hotel: string
-  roomType: string
-  checkInDate: string
-  checkOutDate: string
+  room_type: string
+  check_in_date: string
+  check_out_date: string
   notes: string
 }
 
 export interface Resource {
   id: number
-  bookingID: number
-  guideID: number
-  driverID: number
-  vehicleID: number
-  guideName: string
-  driverName: string
-  vehicleInfo: string
-  assignedDate: string
+  booking_id: number
+  guide_id: number
+  driver_id: number
+  vehicle_id: number
+  guide_name: string
+  driver_name: string
+  vehicle_info: string
+  assigned_date: string
 }
 
 export interface Financial {
   id: number
-  bookingID: number
-  invoiceNumber: string
-  paymentStatus: PaymentStatus
-  paymentMethod: PaymentMethod
-  costTotal: number
-  depositPaid: number
-  depositPaymentDate: string
-  depositPaymentMethod: PaymentMethod
-  balanceDue: number
-  balancePaymentMethod: PaymentMethod
+  booking_id: number
+  invoice_number: string
+  payment_status: PaymentStatus
+  payment_method: PaymentMethod
+  cost_total: number
+  deposit_invoice_number: string
+  deposit_amount: number
+  deposit_payment_date: string
+  deposit_payment_method: PaymentMethod
+  deposit_receipt_url: string
+  balance_due: number
+  balance_invoice_number: string
+  balance_payment_method: PaymentMethod
+  balance_invoice_url: string
   expenses: number
-  netProfit: number
-  depositInvoiceNumber: string
-  depositReceiptURL: string
-  balanceInvoiceNumber: string
-  balanceInvoiceURL: string
-  expensesDetailsURL: string
-  daysToTour: number
-  finalPaymentDeadline: string
-  lastMinuteBooking: boolean
+  expenses_details_url: string
+  net_profit: number
+  days_to_tour: number
+  final_payment_deadline: string
+  last_minute_booking: boolean
 }
 
 export interface BookingWithDetails extends Booking {

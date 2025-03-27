@@ -1,6 +1,5 @@
 
 import { useState, useEffect } from "react";
-import { getBookingsWithDetails } from "@/data/mockData";
 import { BookingWithDetails, Financial } from "@/types";
 import StatusBadge from "@/components/StatusBadge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +9,7 @@ import { format, parseISO, isPast } from "date-fns";
 import { ArrowUpRight, Clock, DollarSign } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import { getBookingsWithDetails } from "@/services/bookingService";
 
 const Finances = () => {
   const [bookings, setBookings] = useState<BookingWithDetails[]>([]);
@@ -18,8 +18,7 @@ const Finances = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // In a real app, this would be an API call
-        const data = getBookingsWithDetails();
+        const data = await getBookingsWithDetails();
         setBookings(data);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -33,7 +32,7 @@ const Finances = () => {
 
   // Financial summaries
   const totalRevenue = bookings.reduce((sum, booking) => {
-    return sum + (booking.financial?.costTotal || 0);
+    return sum + (booking.financial?.cost_total || 0);
   }, 0);
   
   const totalExpenses = bookings.reduce((sum, booking) => {
@@ -41,18 +40,18 @@ const Finances = () => {
   }, 0);
   
   const totalProfit = bookings.reduce((sum, booking) => {
-    return sum + (booking.financial?.netProfit || 0);
+    return sum + (booking.financial?.net_profit || 0);
   }, 0);
   
   const pendingPayments = bookings.reduce((sum, booking) => {
-    return sum + (booking.financial?.balanceDue || 0);
+    return sum + (booking.financial?.balance_due || 0);
   }, 0);
 
   // Group bookings by payment status
-  const paidBookings = bookings.filter(b => b.financial?.paymentStatus === "Paid");
-  const partialBookings = bookings.filter(b => b.financial?.paymentStatus === "Partial");
-  const overdueBookings = bookings.filter(b => b.financial?.paymentStatus === "Overdue");
-  const noneBookings = bookings.filter(b => b.financial?.paymentStatus === "None");
+  const paidBookings = bookings.filter(b => b.financial?.payment_status === "Paid");
+  const partialBookings = bookings.filter(b => b.financial?.payment_status === "Partial");
+  const overdueBookings = bookings.filter(b => b.financial?.payment_status === "Overdue");
+  const noneBookings = bookings.filter(b => b.financial?.payment_status === "None");
 
   if (isLoading) {
     return (
@@ -116,7 +115,7 @@ const Finances = () => {
               }).format(totalProfit)}
             </div>
             <p className="text-xs text-muted-foreground">
-              Margin: {((totalProfit / totalRevenue) * 100).toFixed(1)}%
+              Margin: {totalRevenue > 0 ? ((totalProfit / totalRevenue) * 100).toFixed(1) : 0}%
             </p>
           </CardContent>
         </Card>
@@ -161,6 +160,7 @@ const Finances = () => {
                   <TableRow>
                     <TableHead>Booking</TableHead>
                     <TableHead>Customer</TableHead>
+                    <TableHead>Invoice #</TableHead>
                     <TableHead>Total</TableHead>
                     <TableHead>Deposit</TableHead>
                     <TableHead>Balance</TableHead>
@@ -173,26 +173,27 @@ const Finances = () => {
                   {bookings.map((booking) => {
                     if (!booking.financial) return null;
                     
-                    const isDeadlinePassed = booking.financial.finalPaymentDeadline && 
-                      isPast(parseISO(booking.financial.finalPaymentDeadline));
+                    const isDeadlinePassed = booking.financial.final_payment_deadline && 
+                      isPast(parseISO(booking.financial.final_payment_deadline));
                     
-                    const depositPercentage = (booking.financial.depositPaid / booking.financial.costTotal) * 100;
+                    const depositPercentage = (booking.financial.deposit_amount / booking.financial.cost_total) * 100;
                     
                     return (
                       <TableRow key={booking.id} className="animate-fade-in">
-                        <TableCell className="font-medium">{booking.tourPackage}</TableCell>
+                        <TableCell className="font-medium">{booking.tour_package}</TableCell>
                         <TableCell>{booking.customer?.name}</TableCell>
+                        <TableCell>{booking.financial.invoice_number}</TableCell>
                         <TableCell>
                           {new Intl.NumberFormat('en-US', {
                             style: 'currency',
                             currency: 'USD',
-                          }).format(booking.financial.costTotal)}
+                          }).format(booking.financial.cost_total)}
                         </TableCell>
                         <TableCell>
                           {new Intl.NumberFormat('en-US', {
                             style: 'currency',
                             currency: 'USD',
-                          }).format(booking.financial.depositPaid)}
+                          }).format(booking.financial.deposit_amount)}
                           <div className="w-full bg-gray-200 rounded-full h-1 mt-1">
                             <div 
                               className={cn(
@@ -209,23 +210,23 @@ const Finances = () => {
                           {new Intl.NumberFormat('en-US', {
                             style: 'currency',
                             currency: 'USD',
-                          }).format(booking.financial.balanceDue)}
+                          }).format(booking.financial.balance_due)}
                         </TableCell>
                         <TableCell className={cn(
-                          isDeadlinePassed && booking.financial.paymentStatus !== "Paid" && "text-red-500 font-medium"
+                          isDeadlinePassed && booking.financial.payment_status !== "Paid" && "text-red-500 font-medium"
                         )}>
-                          {booking.financial.finalPaymentDeadline ? 
-                            format(parseISO(booking.financial.finalPaymentDeadline), "MMM d, yyyy") :
+                          {booking.financial.final_payment_deadline ? 
+                            format(parseISO(booking.financial.final_payment_deadline), "MMM d, yyyy") :
                             "Not set"}
                         </TableCell>
                         <TableCell>
-                          <StatusBadge status={booking.financial.paymentStatus} />
+                          <StatusBadge status={booking.financial.payment_status} />
                         </TableCell>
                         <TableCell>
                           {new Intl.NumberFormat('en-US', {
                             style: 'currency',
                             currency: 'USD',
-                          }).format(booking.financial.netProfit)}
+                          }).format(booking.financial.net_profit)}
                         </TableCell>
                       </TableRow>
                     );
@@ -249,6 +250,7 @@ const Finances = () => {
                     <TableRow>
                       <TableHead>Booking</TableHead>
                       <TableHead>Customer</TableHead>
+                      <TableHead>Invoice #</TableHead>
                       <TableHead>Balance Due</TableHead>
                       <TableHead>Deadline</TableHead>
                       <TableHead>Days Overdue</TableHead>
@@ -259,19 +261,20 @@ const Finances = () => {
                     {overdueBookings.map((booking) => {
                       if (!booking.financial) return null;
                       
-                      const deadlineDate = parseISO(booking.financial.finalPaymentDeadline);
+                      const deadlineDate = parseISO(booking.financial.final_payment_deadline);
                       const today = new Date();
                       const daysOverdue = Math.floor((today.getTime() - deadlineDate.getTime()) / (1000 * 60 * 60 * 24));
                       
                       return (
                         <TableRow key={booking.id} className="animate-fade-in">
-                          <TableCell className="font-medium">{booking.tourPackage}</TableCell>
+                          <TableCell className="font-medium">{booking.tour_package}</TableCell>
                           <TableCell>{booking.customer?.name}</TableCell>
+                          <TableCell>{booking.financial.balance_invoice_number}</TableCell>
                           <TableCell className="font-medium">
                             {new Intl.NumberFormat('en-US', {
                               style: 'currency',
                               currency: 'USD',
-                            }).format(booking.financial.balanceDue)}
+                            }).format(booking.financial.balance_due)}
                           </TableCell>
                           <TableCell className="text-red-500">
                             {format(deadlineDate, "MMM d, yyyy")}
@@ -281,7 +284,7 @@ const Finances = () => {
                           </TableCell>
                           <TableCell>
                             <a 
-                              href={booking.financial.balanceInvoiceURL} 
+                              href={booking.financial.balance_invoice_url} 
                               target="_blank" 
                               rel="noopener noreferrer"
                               className="flex items-center text-primary text-sm font-medium"
@@ -317,28 +320,31 @@ const Finances = () => {
                     <TableRow>
                       <TableHead>Booking</TableHead>
                       <TableHead>Customer</TableHead>
+                      <TableHead>Deposit #</TableHead>
                       <TableHead>Total</TableHead>
                       <TableHead>Deposit</TableHead>
                       <TableHead>Deposit %</TableHead>
                       <TableHead>Balance Due</TableHead>
                       <TableHead>Final Deadline</TableHead>
+                      <TableHead>Receipt</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {partialBookings.map((booking) => {
                       if (!booking.financial) return null;
                       
-                      const depositPaid = booking.financial.depositPaid;
-                      const costTotal = booking.financial.costTotal;
-                      const depositPercentage = (depositPaid / costTotal) * 100;
-                      const deadlineDate = parseISO(booking.financial.finalPaymentDeadline);
+                      const depositAmount = booking.financial.deposit_amount;
+                      const costTotal = booking.financial.cost_total;
+                      const depositPercentage = (depositAmount / costTotal) * 100;
+                      const deadlineDate = parseISO(booking.financial.final_payment_deadline);
                       const today = new Date();
                       const daysUntilDeadline = Math.floor((deadlineDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
                       
                       return (
                         <TableRow key={booking.id} className="animate-fade-in">
-                          <TableCell className="font-medium">{booking.tourPackage}</TableCell>
+                          <TableCell className="font-medium">{booking.tour_package}</TableCell>
                           <TableCell>{booking.customer?.name}</TableCell>
+                          <TableCell>{booking.financial.deposit_invoice_number}</TableCell>
                           <TableCell>
                             {new Intl.NumberFormat('en-US', {
                               style: 'currency',
@@ -349,7 +355,7 @@ const Finances = () => {
                             {new Intl.NumberFormat('en-US', {
                               style: 'currency',
                               currency: 'USD',
-                            }).format(depositPaid)}
+                            }).format(depositAmount)}
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
@@ -372,7 +378,7 @@ const Finances = () => {
                             {new Intl.NumberFormat('en-US', {
                               style: 'currency',
                               currency: 'USD',
-                            }).format(booking.financial.balanceDue)}
+                            }).format(booking.financial.balance_due)}
                           </TableCell>
                           <TableCell className={cn(
                             daysUntilDeadline <= 7 && "text-yellow-500 font-medium",
@@ -383,6 +389,19 @@ const Finances = () => {
                               <div className="text-xs">
                                 {daysUntilDeadline} days left
                               </div>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {booking.financial.deposit_receipt_url && (
+                              <a 
+                                href={booking.financial.deposit_receipt_url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="flex items-center text-primary text-sm font-medium"
+                              >
+                                View receipt
+                                <ArrowUpRight className="h-3 w-3 ml-1" />
+                              </a>
                             )}
                           </TableCell>
                         </TableRow>
@@ -412,33 +431,36 @@ const Finances = () => {
                     <TableRow>
                       <TableHead>Booking</TableHead>
                       <TableHead>Customer</TableHead>
+                      <TableHead>Invoice #</TableHead>
                       <TableHead>Total</TableHead>
                       <TableHead>Payment Method</TableHead>
                       <TableHead>Expenses</TableHead>
                       <TableHead>Net Profit</TableHead>
                       <TableHead>Margin</TableHead>
+                      <TableHead>Details</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {paidBookings.map((booking) => {
                       if (!booking.financial) return null;
                       
-                      const costTotal = booking.financial.costTotal;
+                      const costTotal = booking.financial.cost_total;
                       const expenses = booking.financial.expenses;
-                      const netProfit = booking.financial.netProfit;
+                      const netProfit = booking.financial.net_profit;
                       const margin = (netProfit / costTotal) * 100;
                       
                       return (
                         <TableRow key={booking.id} className="animate-fade-in">
-                          <TableCell className="font-medium">{booking.tourPackage}</TableCell>
+                          <TableCell className="font-medium">{booking.tour_package}</TableCell>
                           <TableCell>{booking.customer?.name}</TableCell>
+                          <TableCell>{booking.financial.invoice_number}</TableCell>
                           <TableCell>
                             {new Intl.NumberFormat('en-US', {
                               style: 'currency',
                               currency: 'USD',
                             }).format(costTotal)}
                           </TableCell>
-                          <TableCell>{booking.financial.paymentMethod}</TableCell>
+                          <TableCell>{booking.financial.payment_method}</TableCell>
                           <TableCell>
                             {new Intl.NumberFormat('en-US', {
                               style: 'currency',
@@ -458,6 +480,19 @@ const Finances = () => {
                             "font-medium"
                           )}>
                             {margin.toFixed(1)}%
+                          </TableCell>
+                          <TableCell>
+                            {booking.financial.expenses_details_url && (
+                              <a 
+                                href={booking.financial.expenses_details_url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="flex items-center text-primary text-sm font-medium"
+                              >
+                                Expense details
+                                <ArrowUpRight className="h-3 w-3 ml-1" />
+                              </a>
+                            )}
                           </TableCell>
                         </TableRow>
                       );

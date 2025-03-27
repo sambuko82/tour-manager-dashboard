@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getBookingsWithDetails } from "@/data/mockData";
 import { BookingWithDetails } from "@/types";
 import BookingCard from "@/components/BookingCard";
 import StatusBadge from "@/components/StatusBadge";
@@ -9,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, DollarSign, Clock, Users } from "lucide-react";
 import { formatDistanceToNow, parseISO, isBefore } from "date-fns";
+import { getBookingsWithDetails } from "@/services/bookingService";
 
 const Dashboard = () => {
   const [bookings, setBookings] = useState<BookingWithDetails[]>([]);
@@ -19,13 +19,12 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // In a real app, this would be an API call
-        const data = getBookingsWithDetails();
+        const data = await getBookingsWithDetails();
         
         // Filter upcoming tours (next 14 days)
         const today = new Date();
         const upcoming = data.filter(booking => {
-          const startDate = parseISO(booking.startDate);
+          const startDate = parseISO(booking.start_date);
           return isBefore(today, startDate) && 
                  formatDistanceToNow(startDate, { addSuffix: false }) <= '14 days';
         });
@@ -47,11 +46,11 @@ const Dashboard = () => {
       let status;
       
       if (statusType === 'payment' && booking.financial) {
-        status = booking.financial.paymentStatus;
+        status = booking.financial.payment_status;
       } else if (statusType === 'accommodation') {
-        status = booking.accommodationStatus;
+        status = booking.accommodation_status;
       } else if (statusType === 'resource') {
-        status = booking.resourceStatus;
+        status = booking.resource_status;
       }
       
       if (status) {
@@ -67,12 +66,20 @@ const Dashboard = () => {
   const resourceStats = countByStatus('resource');
   
   const totalRevenue = bookings.reduce((sum, booking) => {
-    return sum + (booking.financial?.costTotal || 0);
+    return sum + (booking.financial?.cost_total || 0);
+  }, 0);
+  
+  const totalExpenses = bookings.reduce((sum, booking) => {
+    return sum + (booking.financial?.expenses || 0);
+  }, 0);
+  
+  const totalProfit = bookings.reduce((sum, booking) => {
+    return sum + (booking.financial?.net_profit || 0);
   }, 0);
   
   const totalBookings = bookings.length;
   const totalParticipants = bookings.reduce((sum, booking) => {
-    return sum + booking.numberOfParticipants;
+    return sum + booking.number_of_participants;
   }, 0);
 
   const navigateToBookingDetails = (id: number) => {
@@ -114,36 +121,46 @@ const Dashboard = () => {
         
         <Card className="glass-card">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+              }).format(totalExpenses)}
+            </div>
+            <p className="text-xs text-muted-foreground">Operating costs</p>
+          </CardContent>
+        </Card>
+        
+        <Card className="glass-card">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Net Profit</CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+              }).format(totalProfit)}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Margin: {totalRevenue > 0 ? ((totalProfit / totalRevenue) * 100).toFixed(1) : 0}%
+            </p>
+          </CardContent>
+        </Card>
+        
+        <Card className="glass-card">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Upcoming Tours</CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{upcomingTours.length}</div>
             <p className="text-xs text-muted-foreground">In the next 14 days</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="glass-card">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Participants</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalParticipants}</div>
-            <p className="text-xs text-muted-foreground">Across all bookings</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="glass-card">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Pending Payments</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{paymentStats["Partial"] || 0}</div>
-            <p className="text-xs text-muted-foreground">
-              <span className="text-red-500 font-medium">{paymentStats["Overdue"] || 0} overdue</span>
-            </p>
           </CardContent>
         </Card>
       </div>
@@ -232,7 +249,7 @@ const Dashboard = () => {
           </div>
           
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {bookings.filter(b => b.financial?.paymentStatus === "Overdue").map((booking) => (
+            {bookings.filter(b => b.financial?.payment_status === "Overdue").map((booking) => (
               <BookingCard 
                 key={booking.id} 
                 booking={booking} 
