@@ -32,7 +32,7 @@ export async function getBookingsWithDetails(): Promise<BookingWithDetails[]> {
       const bookingAccommodations = accommodations?.filter(a => a.booking_id === booking.id) || [];
       const bookingResources = resources?.filter(r => r.booking_id === booking.id) || [];
 
-      // Convert database snake_case to camelCase for frontend consistency
+      // Return formatted booking with all details
       const formattedBooking: BookingWithDetails = {
         id: booking.id,
         customer_id: booking.customer_id,

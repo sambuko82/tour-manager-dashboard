@@ -108,20 +108,20 @@ const Accommodations = () => {
                 </TableHeader>
                 <TableBody>
                   {accommodations.map((accommodation) => {
-                    const booking = getBookingById(accommodation.bookingID);
+                    const booking = getBookingById(accommodation.booking_id);
                     if (!booking) return null;
                     
                     return (
                       <TableRow key={accommodation.id} className="animate-fade-in">
-                        <TableCell className="font-medium">{booking.tourPackage}</TableCell>
+                        <TableCell className="font-medium">{booking.tour_package}</TableCell>
                         <TableCell>{booking.customer?.name}</TableCell>
                         <TableCell>Day {accommodation.day}</TableCell>
                         <TableCell>{accommodation.hotel}</TableCell>
-                        <TableCell>{accommodation.roomType}</TableCell>
-                        <TableCell>{format(parseISO(accommodation.checkInDate), "MMM d, yyyy")}</TableCell>
-                        <TableCell>{format(parseISO(accommodation.checkOutDate), "MMM d, yyyy")}</TableCell>
+                        <TableCell>{accommodation.room_type}</TableCell>
+                        <TableCell>{format(parseISO(accommodation.check_in_date), "MMM d, yyyy")}</TableCell>
+                        <TableCell>{format(parseISO(accommodation.check_out_date), "MMM d, yyyy")}</TableCell>
                         <TableCell>
-                          <StatusBadge status={booking.accommodationStatus} size="sm" />
+                          <StatusBadge status={booking.accommodation_status} size="sm" />
                         </TableCell>
                       </TableRow>
                     );
@@ -146,7 +146,7 @@ const Accommodations = () => {
                   
                   <div className="space-y-2">
                     {getAccommodationsForHotel(hotel).map(acc => {
-                      const booking = getBookingById(acc.bookingID);
+                      const booking = getBookingById(acc.booking_id);
                       if (!booking) return null;
                       
                       return (
@@ -154,20 +154,20 @@ const Accommodations = () => {
                           key={acc.id} 
                           className={cn(
                             "p-2 rounded-md text-sm",
-                            booking.accommodationStatus === "Confirmed" ? "bg-green-50 dark:bg-green-900/20" :
-                            booking.accommodationStatus === "Pending" ? "bg-yellow-50 dark:bg-yellow-900/20" :
+                            booking.accommodation_status === "Confirmed" ? "bg-green-50 dark:bg-green-900/20" :
+                            booking.accommodation_status === "Pending" ? "bg-yellow-50 dark:bg-yellow-900/20" :
                             "bg-red-50 dark:bg-red-900/20"
                           )}
                         >
                           <div className="flex justify-between items-center">
-                            <span className="font-medium">{booking.tourPackage}</span>
-                            <StatusBadge status={booking.accommodationStatus} size="sm" />
+                            <span className="font-medium">{booking.tour_package}</span>
+                            <StatusBadge status={booking.accommodation_status} size="sm" />
                           </div>
                           <div className="text-xs text-muted-foreground mt-1">
-                            {format(parseISO(acc.checkInDate), "MMM d")} - {format(parseISO(acc.checkOutDate), "MMM d")}
+                            {format(parseISO(acc.check_in_date), "MMM d")} - {format(parseISO(acc.check_out_date), "MMM d")}
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            {acc.roomType} • {booking.numberOfParticipants} guests
+                            {acc.room_type} • {booking.number_of_participants} guests
                           </div>
                           {acc.notes && (
                             <div className="text-xs italic mt-1 text-muted-foreground">
@@ -197,7 +197,7 @@ const Accommodations = () => {
               <div>
                 <div className="text-sm font-medium">Confirmed</div>
                 <div className="text-2xl font-bold">
-                  {bookings.filter(b => b.accommodationStatus === "Confirmed").length}
+                  {bookings.filter(b => b.accommodation_status === "Confirmed").length}
                 </div>
               </div>
             </div>
@@ -207,7 +207,7 @@ const Accommodations = () => {
               <div>
                 <div className="text-sm font-medium">Pending</div>
                 <div className="text-2xl font-bold">
-                  {bookings.filter(b => b.accommodationStatus === "Pending").length}
+                  {bookings.filter(b => b.accommodation_status === "Pending").length}
                 </div>
               </div>
             </div>
@@ -217,7 +217,7 @@ const Accommodations = () => {
               <div>
                 <div className="text-sm font-medium">Not Confirmed</div>
                 <div className="text-2xl font-bold">
-                  {bookings.filter(b => b.accommodationStatus === "Not Confirmed").length}
+                  {bookings.filter(b => b.accommodation_status === "Not Confirmed").length}
                 </div>
               </div>
             </div>

@@ -48,16 +48,16 @@ const Resources = () => {
   });
 
   // Group resources by type
-  const guides = Array.from(new Set(resources.map(r => r.guideName)));
-  const drivers = Array.from(new Set(resources.map(r => r.driverName)));
-  const vehicles = Array.from(new Set(resources.map(r => r.vehicleInfo)));
+  const guides = Array.from(new Set(resources.map(r => r.guide_name)));
+  const drivers = Array.from(new Set(resources.map(r => r.driver_name)));
+  const vehicles = Array.from(new Set(resources.map(r => r.vehicle_info)));
 
   const getResourceAssignments = (resourceName: string, type: 'guide' | 'driver' | 'vehicle') => {
     return bookings.filter(booking => {
       return booking.resources?.some(r => {
-        if (type === 'guide') return r.guideName === resourceName;
-        if (type === 'driver') return r.driverName === resourceName;
-        if (type === 'vehicle') return r.vehicleInfo === resourceName;
+        if (type === 'guide') return r.guide_name === resourceName;
+        if (type === 'driver') return r.driver_name === resourceName;
+        if (type === 'vehicle') return r.vehicle_info === resourceName;
         return false;
       });
     });
@@ -97,8 +97,8 @@ const Resources = () => {
         <div className="flex space-x-2 overflow-x-auto pb-2">
           {dates.map(date => {
             const assignedBookings = assignments.filter(booking => {
-              const startDate = parseISO(booking.startDate);
-              const endDate = parseISO(booking.endDate);
+              const startDate = parseISO(booking.start_date);
+              const endDate = parseISO(booking.end_date);
               
               return date >= startDate && date <= endDate;
             });
@@ -132,8 +132,8 @@ const Resources = () => {
         
         {/* Show assignments for selected date */}
         {assignments.filter(booking => {
-          const startDate = parseISO(booking.startDate);
-          const endDate = parseISO(booking.endDate);
+          const startDate = parseISO(booking.start_date);
+          const endDate = parseISO(booking.end_date);
           return selectedDate >= startDate && selectedDate <= endDate;
         }).map(booking => (
           <div 
@@ -142,21 +142,21 @@ const Resources = () => {
             onClick={() => toggleBookingVisibility(booking.id)}
           >
             <div className="flex justify-between items-center">
-              <span className="font-medium">{booking.tourPackage}</span>
+              <span className="font-medium">{booking.tour_package}</span>
               <span className="text-xs text-muted-foreground">
-                {format(parseISO(booking.startDate), "MMM d")} - {format(parseISO(booking.endDate), "MMM d")}
+                {format(parseISO(booking.start_date), "MMM d")} - {format(parseISO(booking.end_date), "MMM d")}
               </span>
             </div>
             
             {visibleBookingId === booking.id && (
               <div className="mt-2 text-xs text-muted-foreground space-y-1 animate-fade-in">
                 <p>Customer: {booking.customer?.name}</p>
-                <p>Participants: {booking.numberOfParticipants}</p>
-                <p>Pickup: {booking.pickupInfo}</p>
+                <p>Participants: {booking.number_of_participants}</p>
+                <p>Pickup: {booking.pickup_info}</p>
                 {booking.financial && (
                   <div className="flex items-center mt-1">
                     <span>Payment Status: </span>
-                    <StatusBadge status={booking.financial.paymentStatus} size="sm" className="ml-1" />
+                    <StatusBadge status={booking.financial.payment_status} size="sm" className="ml-1" />
                   </div>
                 )}
               </div>
@@ -236,8 +236,8 @@ const Resources = () => {
           <CardContent>
             <div className="text-2xl font-bold">
               {guides.length - getResourceAssignments(guides[0], 'guide').filter(b => {
-                const startDate = parseISO(b.startDate);
-                const endDate = parseISO(b.endDate);
+                const startDate = parseISO(b.start_date);
+                const endDate = parseISO(b.end_date);
                 return selectedDate >= startDate && selectedDate <= endDate;
               }).length}
               <span className="text-sm text-muted-foreground ml-2">of {guides.length}</span>
@@ -252,8 +252,8 @@ const Resources = () => {
           <CardContent>
             <div className="text-2xl font-bold">
               {drivers.length - getResourceAssignments(drivers[0], 'driver').filter(b => {
-                const startDate = parseISO(b.startDate);
-                const endDate = parseISO(b.endDate);
+                const startDate = parseISO(b.start_date);
+                const endDate = parseISO(b.end_date);
                 return selectedDate >= startDate && selectedDate <= endDate;
               }).length}
               <span className="text-sm text-muted-foreground ml-2">of {drivers.length}</span>
@@ -268,8 +268,8 @@ const Resources = () => {
           <CardContent>
             <div className="text-2xl font-bold">
               {vehicles.length - getResourceAssignments(vehicles[0], 'vehicle').filter(b => {
-                const startDate = parseISO(b.startDate);
-                const endDate = parseISO(b.endDate);
+                const startDate = parseISO(b.start_date);
+                const endDate = parseISO(b.end_date);
                 return selectedDate >= startDate && selectedDate <= endDate;
               }).length}
               <span className="text-sm text-muted-foreground ml-2">of {vehicles.length}</span>
